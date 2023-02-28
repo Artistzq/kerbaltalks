@@ -1,6 +1,8 @@
 package com.chinaero.kerbaltalks.service;
 
+import com.chinaero.kerbaltalks.dao.LoginTicketMapper;
 import com.chinaero.kerbaltalks.dao.UserMapper;
+import com.chinaero.kerbaltalks.entity.LoginTicket;
 import com.chinaero.kerbaltalks.entity.User;
 import com.chinaero.kerbaltalks.util.KerbaltalksConstant;
 import com.chinaero.kerbaltalks.util.KerbaltalksUtil;
@@ -26,16 +28,19 @@ public class UserService implements KerbaltalksConstant {
 
     private final TemplateEngine templateEngine;
 
+    private final LoginTicketMapper loginTicketMapper;
+
     @Value("${kerbaltalks.path.domain}")
-    private String domain;
+    private  String domain;
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
-    public UserService(MailClient mailClient, UserMapper userMapper, TemplateEngine templateEngine) {
+    public UserService(MailClient mailClient, UserMapper userMapper, TemplateEngine templateEngine, LoginTicketMapper loginTicketMapper) {
         this.mailClient = mailClient;
         this.userMapper = userMapper;
         this.templateEngine = templateEngine;
+        this.loginTicketMapper = loginTicketMapper;
     }
 
     public User findUserById(int id) {
@@ -113,4 +118,52 @@ public class UserService implements KerbaltalksConstant {
         }
     }
 
+    public Map<String, Object> login(String username, String password, long expiredSeconds) {
+        Map<String, Object> map = new HashMap<>();
+
+        // 空值处理
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "Username can not be empty");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "Password can not be empty");
+            return map;
+        }
+
+        // 验证账号
+        User user = userMapper.selectByName(username);
+        if (user == null) {
+            map.put("usernameMsg", "Account do not exist.");
+            return map;
+        }
+
+        // 验证账号
+        if (user.getStatus() == 0) {
+            map.put("usernameMsg", "Account not activated.");
+            return map;
+        }
+
+        // 验证密码
+        password = KerbaltalksUtil.md5(password + user.getSalt());
+        if (!user.getPassword().equals(password)) {
+            map.put("passwordMsg", "Password is not correct.");
+            return map;
+        }
+
+        // 生成登陆凭证
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(KerbaltalksUtil.generateUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+
+        map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
+
+    public void logout(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
+    }
 }

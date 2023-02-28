@@ -13,8 +13,17 @@ public interface KerbaltalksConstant {
     public static final int ACTIVATION_REPEAT = 1;
 
     /**
-     * 注册失败
+     * 激活失败
      */
     public static final int ACTIVATION_FAILURE = 2;
 
+    /**
+     * 默认状态的登陆凭证的超时时间
+     */
+    public static final int DEFAULT_EXPIRED_SECONDS = 3600 * 12;
+
+    /**
+     * 记住状态的凭证
+     */
+    public static final int REMEMBER_EXPIRED_SECONDS = 3600 * 24 * 30;
 }
