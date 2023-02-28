@@ -1,8 +1,14 @@
 package com.chinaero.kerbaltalks.contorller;
 
+import com.chinaero.kerbaltalks.config.KaptchaConfig;
 import com.chinaero.kerbaltalks.entity.User;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.KerbaltalksConstant;
+import com.google.code.kaptcha.Producer;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,15 +16,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 
 @Controller
 public class LoginController implements KerbaltalksConstant {
 
+    public static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+
     private final UserService userService;
 
-    public LoginController(UserService userService) {
+    private final Producer kaptchaProducer;
+
+    public LoginController(UserService userService, Producer kaptchaProducer) {
         this.userService = userService;
+        this.kaptchaProducer = kaptchaProducer;
     }
 
     @RequestMapping(path = "/register", method = RequestMethod.GET)
@@ -60,6 +75,24 @@ public class LoginController implements KerbaltalksConstant {
             model.addAttribute("target", "/index");
         }
         return "/site/operate-result";
+    }
+
+    @RequestMapping(path = "/kaptcha", method = RequestMethod.GET)
+    public void getKaptcha(HttpServletResponse response, HttpSession session) {
+        String text = kaptchaProducer.createText();
+        BufferedImage image = kaptchaProducer.createImage(text);
+
+        session.setAttribute("kaptcha", text);
+
+        //将图片输出给浏览器
+        response.setContentType("image/png");
+        try (OutputStream outputStream = response.getOutputStream()){
+            ImageIO.write(image, "png", outputStream);
+        } catch (IOException e) {
+            logger.error("相应验证码失败" + e.getMessage());
+            throw new RuntimeException(e);
+        }
+
     }
 
 }
