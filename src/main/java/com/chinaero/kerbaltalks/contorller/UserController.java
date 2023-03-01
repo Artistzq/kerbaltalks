@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -86,7 +87,7 @@ public class UserController {
         fileName = uploadPath + "/" + fileName;
 
         // 声明格式
-        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
         // 响应图片，字节流
         response.setContentType("image/" + suffix);
         try (OutputStream os = response.getOutputStream();
@@ -99,6 +100,21 @@ public class UserController {
         } catch (IOException e) {
             logger.error("读取图像失败：" + e.getMessage());
             throw new RuntimeException(e);
+        }
+    }
+
+    @RequestMapping(path = "/update_password", method = RequestMethod.POST)
+    public String updatePassword(Model model, String oldPassword, String newPassword, String confirmPassword) {
+        User user = hostHolder.getUser();
+        Map<String, Object> map = userService.updatePassword(user.getId(), oldPassword, newPassword, confirmPassword);
+        if (map == null || map.isEmpty()) {
+            // 修改成功
+            return "redirect:/logout";
+        } else {
+            model.addAttribute("oldPasswordMsg", map.get("oldPasswordMsg"));
+            model.addAttribute("newPasswordMsg", map.get("newPasswordMsg"));
+            model.addAttribute("confirmPasswordMsg", map.get("confirmPasswordMsg"));
+            return "/site/setting";
         }
     }
 

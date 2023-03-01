@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -127,10 +128,12 @@ public class LoginController implements KerbaltalksConstant {
         }
     }
 
-    @RequestMapping(path = "logout", method = RequestMethod.GET)
-    public String logout(@CookieValue("ticket") String ticket) {
+    @RequestMapping(path = "/logout", method = RequestMethod.GET)
+    public String logout(Model model, @CookieValue("ticket") String ticket) {
         userService.logout(ticket);
-        return "redirect:/login";
+        model.addAttribute("msg", " 已登出账号，将回到首页。");
+        model.addAttribute("target", "/index");
+        model.addAttribute("loginUser", null);
+        return "/site/operate-result";
     }
-
 }

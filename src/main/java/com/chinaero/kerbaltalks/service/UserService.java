@@ -174,4 +174,43 @@ public class UserService implements KerbaltalksConstant {
     public int updateHeader(int userId, String headerUrl) {
         return userMapper.updateHeader(userId, headerUrl);
     }
+
+    public Map<String, Object> updatePassword(int userId, String oldPassword, String newPassword, String confirmPassword) {
+        Map<String, Object> map = new HashMap<>();
+
+        // 空值处理
+        if (StringUtils.isBlank(oldPassword)) {
+            map.put("oldPasswordMsg", "Old password can not be empty");
+            return map;
+        }
+        if (StringUtils.isBlank(newPassword)) {
+            map.put("newPasswordMsg", "New password can not be empty");
+            return map;
+        }
+        if (StringUtils.isBlank(confirmPassword)) {
+            map.put("confirmPasswordMsg", "Confirm password can not be empty");
+            return map;
+        }
+
+        // 确认处理
+        if (! newPassword.equals(confirmPassword)) {
+            map.put("newPasswordMsg", "New password and confirm password must be same.");
+            return map;
+        }
+
+        // 检查原密码
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            map.put("usernameMsg", "Account do not exist.");
+            return map;
+        }
+        if (! KerbaltalksUtil.md5(oldPassword + user.getSalt()).equals(user.getPassword())) {
+            map.put("oldPasswordMsg", "原密码错误！");
+            return map;
+        }
+
+        // 设置新密码
+        userMapper.updatePassword(userId, KerbaltalksUtil.md5(newPassword + user.getSalt()));
+        return map;
+    }
 }
