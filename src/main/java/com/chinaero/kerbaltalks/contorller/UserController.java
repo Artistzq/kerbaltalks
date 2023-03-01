@@ -1,5 +1,6 @@
 package com.chinaero.kerbaltalks.contorller;
 
+import com.chinaero.kerbaltalks.annotation.LoginRequired;
 import com.chinaero.kerbaltalks.entity.User;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.HostHolder;
@@ -42,12 +43,13 @@ public class UserController {
         this.userService = userService;
     }
 
-
+    @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
         return "/site/setting";
     }
 
+    @LoginRequired
     @RequestMapping(path = "/upload_header", method = RequestMethod.POST)
     public String uploadPath(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
