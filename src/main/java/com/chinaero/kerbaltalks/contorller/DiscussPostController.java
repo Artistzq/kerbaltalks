@@ -1,11 +1,15 @@
 package com.chinaero.kerbaltalks.contorller;
 
 import com.chinaero.kerbaltalks.annotation.LoginRequired;
+import com.chinaero.kerbaltalks.entity.Comment;
 import com.chinaero.kerbaltalks.entity.DiscussPost;
+import com.chinaero.kerbaltalks.entity.Page;
 import com.chinaero.kerbaltalks.entity.User;
+import com.chinaero.kerbaltalks.service.CommentService;
 import com.chinaero.kerbaltalks.service.DiscussPostService;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.HostHolder;
+import com.chinaero.kerbaltalks.util.KerbaltalksConstant;
 import com.chinaero.kerbaltalks.util.KerbaltalksUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,12 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.xml.stream.events.Comment;
-import java.util.Date;
+import java.util.*;
 
 @Controller
 @RequestMapping("/discuss")
-public class DiscussPostController {
+public class DiscussPostController implements KerbaltalksConstant {
 
     @Autowired
     private DiscussPostService discussPostService;
@@ -30,6 +33,9 @@ public class DiscussPostController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CommentService commentService;
 
     @LoginRequired
     @RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -52,7 +58,7 @@ public class DiscussPostController {
     }
 
     @RequestMapping(path = "/detail/{discussPostId}", method = RequestMethod.GET)
-    public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model) {
+    public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
         // 帖子
         DiscussPost post = discussPostService.findDiscussPostById(discussPostId);
         model.addAttribute("post", post);
@@ -60,6 +66,52 @@ public class DiscussPostController {
         User user = userService.findUserById(post.getUserId());
         model.addAttribute("username", user.getUsername());
         model.addAttribute("headerUrl", user.getHeaderUrl());
+        // 评论分页信息
+        page.setLimit(5);
+        page.setPath("/discuss/detail/" + discussPostId);
+        page.setRows(post.getCommentCount());
+
+        // 评论：帖子的评论
+        List<Comment> comments = commentService.findCommentsByEntity(
+                ENTITY_TYPE_POST, post.getId(), page.getOffset(), page.getLimit());
+        // 评论的VO列表
+        List<Map<String, Object>> commentVos = new ArrayList<>();
+        if (comments != null) {
+            for (Comment comment: comments) {
+                // 评论VO
+                Map<String, Object> commentVo = new HashMap<>();
+                // 添加了一个评论
+                commentVo.put("comment", comment);
+                // 添加该评论的作者
+                commentVo.put("user", userService.findUserById(comment.getUserId()));
+
+                // 寻找评论的评论：回复列表
+                List<Comment> replies = commentService.findCommentsByEntity(
+                        ENTITY_TYPE_COMMENT, comment.getId(), 0, Integer.MAX_VALUE);
+                // 回复的VO列表
+                List<Map<String, Object>> replyVos = new ArrayList<>();
+                if (replies != null) {
+                    for (Comment reply: replies) {
+                        Map<String, Object> replyVo = new HashMap<>();
+                        replyVo.put("reply", reply);
+                        replyVo.put("user", userService.findUserById(reply.getUserId()));
+                        // 判断有没有回复目标
+                        User target = reply.getTargetId() == 0 ? null : userService.findUserById(reply.getTargetId());
+                        replyVo.put("target", target);
+
+                        replyVos.add(replyVo);
+                    }
+                }
+                commentVo.put("replies", replyVos);
+                // 回复数量
+//                int replyCount = commentService.findCommentsCount(ENTITY_TYPE_COMMENT, comment.getId());
+                int replyCount = replies == null ? replies.size() : 0;
+                commentVo.put("replyCount", replyCount);
+
+                commentVos.add(commentVo);
+            }
+        }
+        model.addAttribute("comments", commentVos);
 
         return "/site/discuss-detail";
     }
