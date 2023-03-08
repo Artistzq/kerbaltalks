@@ -105,7 +105,7 @@ public class DiscussPostController implements KerbaltalksConstant {
                 commentVo.put("replies", replyVos);
                 // 回复数量
 //                int replyCount = commentService.findCommentsCount(ENTITY_TYPE_COMMENT, comment.getId());
-                int replyCount = replies == null ? replies.size() : 0;
+                int replyCount = replies != null ? replies.size() : 0;
                 commentVo.put("replyCount", replyCount);
 
                 commentVos.add(commentVo);

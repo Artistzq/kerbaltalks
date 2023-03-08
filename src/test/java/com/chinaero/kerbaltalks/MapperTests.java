@@ -3,9 +3,11 @@ package com.chinaero.kerbaltalks;
 
 import com.chinaero.kerbaltalks.dao.DiscussPostMapper;
 import com.chinaero.kerbaltalks.dao.LoginTicketMapper;
+import com.chinaero.kerbaltalks.dao.MessageMapper;
 import com.chinaero.kerbaltalks.dao.UserMapper;
 import com.chinaero.kerbaltalks.entity.DiscussPost;
 import com.chinaero.kerbaltalks.entity.LoginTicket;
+import com.chinaero.kerbaltalks.entity.Message;
 import com.chinaero.kerbaltalks.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,9 @@ public class MapperTests {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private MessageMapper messageMapper;
 
     @Test
     public void testSelectUser() {
@@ -96,5 +101,24 @@ public class MapperTests {
         loginTicket = loginTicketMapper.selectByTicket("abc");
         System.out.println(loginTicket);
     }
+
+    @Test
+    public void testSelectLetters() {
+        List<Message> messages = messageMapper.selectConversations(111, 0, 20);
+        messages.forEach(System.out::println);
+
+        int count = messageMapper.selectConversationCount(111);
+        System.out.println(count);
+
+        List<Message> list = messageMapper.selectLetters("111_112", 0, 10);
+        list.forEach(System.out::println);
+
+        count = messageMapper.selectLetterCount("111_112");
+        System.out.println(count);
+
+        count = messageMapper.selectUnreadLetterCount(131, "111_131");
+        System.out.println(count);
+    }
+
 
 }
