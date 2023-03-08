@@ -6,17 +6,16 @@ import com.chinaero.kerbaltalks.entity.User;
 import com.chinaero.kerbaltalks.service.MessageService;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.HostHolder;
+import com.chinaero.kerbaltalks.util.KerbaltalksUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class MessageController {
@@ -91,6 +90,12 @@ public class MessageController {
         // 私信目标
         model.addAttribute("target", getLetterTarget(conversationId));
 
+        // 设置私信已读
+        List<Integer> ids = getUnreadIds(letterList);
+        if (! ids.isEmpty()) {
+            messageService.readMessage(ids);
+        }
+
         return "/site/letter-detail";
     }
 
@@ -106,5 +111,44 @@ public class MessageController {
         }
     }
 
+    public List<Integer> getUnreadIds(List<Message> letterList) {
+        List<Integer> ids = new ArrayList<>();
 
+        if (letterList != null) {
+            for (Message message: letterList) {
+                if (message.getToId() == hostHolder.getUser().getId()) {
+                    if (message.getStatus() == 0) {
+                        ids.add(message.getId());
+                    }
+                }
+            }
+        }
+
+        return ids;
+    }
+
+    @RequestMapping(path = "/letter/send", method = RequestMethod.POST)
+    @ResponseBody
+    public String sendMessage(String content, String toName) {
+        User target = userService.findUserByName(toName);
+
+        if (target == null) {
+            return KerbaltalksUtil.getJSONString(0, "未找到目标用户！");
+        }
+
+        Message message = new Message();
+        message.setFromId(hostHolder.getUser().getId());
+        message.setToId(target.getId());
+        message.setStatus(0);
+        message.setContent(content);
+        message.setCreateTime(new Date());
+        if (message.getFromId() < message.getToId()) {
+            message.setConversationId(message.getFromId() + "_" + message.getToId());
+        } else {
+            message.setConversationId(message.getToId() + "_" + message.getFromId());
+        }
+        messageService.addMessage(message);
+
+        return KerbaltalksUtil.getJSONString(1);
+    }
 }

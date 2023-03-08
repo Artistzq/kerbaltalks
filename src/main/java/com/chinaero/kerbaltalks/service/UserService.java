@@ -47,6 +47,10 @@ public class UserService implements KerbaltalksConstant {
         return userMapper.selectById(id);
     }
 
+    public User findUserByName(String username) {
+        return userMapper.selectByName(username);
+    }
+
     /**
      * 激活逻辑
      * @param user
