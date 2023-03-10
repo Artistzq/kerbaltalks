@@ -54,6 +54,6 @@ public class CommentService {
             discussPostService.updateCommentCount(comment.getEntityId(), count);
         }
 
-        return 0;
+        return rows;
     }
 }
