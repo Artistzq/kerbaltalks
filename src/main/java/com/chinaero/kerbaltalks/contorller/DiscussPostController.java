@@ -7,6 +7,7 @@ import com.chinaero.kerbaltalks.entity.Page;
 import com.chinaero.kerbaltalks.entity.User;
 import com.chinaero.kerbaltalks.service.CommentService;
 import com.chinaero.kerbaltalks.service.DiscussPostService;
+import com.chinaero.kerbaltalks.service.LikeService;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.HostHolder;
 import com.chinaero.kerbaltalks.util.KerbaltalksConstant;
@@ -37,6 +38,9 @@ public class DiscussPostController implements KerbaltalksConstant {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private LikeService likeService;
+
     @LoginRequired
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -66,6 +70,13 @@ public class DiscussPostController implements KerbaltalksConstant {
         User user = userService.findUserById(post.getUserId());
         model.addAttribute("username", user.getUsername());
         model.addAttribute("headerUrl", user.getHeaderUrl());
+        // 帖子点赞数量
+        long likeCount = likeService.findEntityLikeCount(KerbaltalksConstant.ENTITY_TYPE_POST, post.getId());
+        model.addAttribute("likeCount", likeCount);
+        // 帖子点赞状态
+        int likeStatus = hostHolder.getUser() == null ? 0 :
+                likeService.findEntityLikeStatus(hostHolder.getUser().getId(), KerbaltalksConstant.ENTITY_TYPE_POST, post.getId());
+        model.addAttribute("likeStatus", likeStatus);
         // 评论分页信息
         page.setLimit(5);
         page.setPath("/discuss/detail/" + discussPostId);
@@ -84,7 +95,13 @@ public class DiscussPostController implements KerbaltalksConstant {
                 commentVo.put("comment", comment);
                 // 添加该评论的作者
                 commentVo.put("user", userService.findUserById(comment.getUserId()));
-
+                // 某评论的点赞数量
+                likeCount = likeService.findEntityLikeCount(KerbaltalksConstant.ENTITY_TYPE_COMMENT, comment.getId());
+                commentVo.put("likeCount", likeCount);
+                // 某评论的点赞状态
+                likeStatus = hostHolder.getUser() == null ? 0 :
+                        likeService.findEntityLikeStatus(hostHolder.getUser().getId(), KerbaltalksConstant.ENTITY_TYPE_COMMENT, comment.getId());
+                commentVo.put("likeStatus", likeStatus);
                 // 寻找评论的评论：回复列表
                 List<Comment> replies = commentService.findCommentsByEntity(
                         ENTITY_TYPE_COMMENT, comment.getId(), 0, Integer.MAX_VALUE);
@@ -95,6 +112,15 @@ public class DiscussPostController implements KerbaltalksConstant {
                         Map<String, Object> replyVo = new HashMap<>();
                         replyVo.put("reply", reply);
                         replyVo.put("user", userService.findUserById(reply.getUserId()));
+                        // 某评论的评论的点赞数量
+                        likeCount = likeService.findEntityLikeCount(KerbaltalksConstant.ENTITY_TYPE_COMMENT, reply.getId());
+                        replyVo.put("likeCount", likeCount);
+                        // 某评论的点赞状态
+                        likeStatus = hostHolder.getUser() == null ? 0 :
+                                likeService.findEntityLikeStatus(
+                                        hostHolder.getUser().getId(), KerbaltalksConstant.ENTITY_TYPE_COMMENT, reply.getId()
+                                );
+                        replyVo.put("likeStatus", likeStatus);
                         // 判断有没有回复目标
                         User target = reply.getTargetId() == 0 ? null : userService.findUserById(reply.getTargetId());
                         replyVo.put("target", target);

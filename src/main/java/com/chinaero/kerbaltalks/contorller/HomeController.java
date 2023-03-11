@@ -4,7 +4,9 @@ import com.chinaero.kerbaltalks.entity.DiscussPost;
 import com.chinaero.kerbaltalks.entity.Page;
 import com.chinaero.kerbaltalks.entity.User;
 import com.chinaero.kerbaltalks.service.DiscussPostService;
+import com.chinaero.kerbaltalks.service.LikeService;
 import com.chinaero.kerbaltalks.service.UserService;
+import com.chinaero.kerbaltalks.util.KerbaltalksConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +27,9 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private LikeService likeService;
+
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
         // Page自动注入model，thymeleaf直接用Page
@@ -39,6 +44,8 @@ public class HomeController {
                 map.put("post", post);
                 User user = userService.findUserById(post.getUserId());
                 map.put("user", user);
+                long likeCount = likeService.findEntityLikeCount(KerbaltalksConstant.ENTITY_TYPE_POST, post.getId());
+                map.put("likeCount", likeCount);
                 discussPosts.add(map);
             }
         }
