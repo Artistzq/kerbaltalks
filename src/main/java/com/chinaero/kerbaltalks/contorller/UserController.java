@@ -2,6 +2,7 @@ package com.chinaero.kerbaltalks.contorller;
 
 import com.chinaero.kerbaltalks.annotation.LoginRequired;
 import com.chinaero.kerbaltalks.entity.User;
+import com.chinaero.kerbaltalks.service.LikeService;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.HostHolder;
 import com.chinaero.kerbaltalks.util.KerbaltalksUtil;
@@ -37,10 +38,12 @@ public class UserController {
     private String contextPath;
     private final HostHolder hostHolder;
     private final UserService userService;
+    private final LikeService likeService;
 
-    public UserController(HostHolder hostHolder, UserService userService) {
+    public UserController(HostHolder hostHolder, UserService userService, LikeService likeService) {
         this.hostHolder = hostHolder;
         this.userService = userService;
+        this.likeService = likeService;
     }
 
     @LoginRequired
@@ -118,6 +121,19 @@ public class UserController {
             model.addAttribute("confirmPasswordMsg", map.get("confirmPasswordMsg"));
             return "/site/setting";
         }
+    }
+
+    @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProgilePage(Model model, @PathVariable("userId") int userId) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在");
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("likeCount", likeService.findUserLikeCount(userId));
+
+        return "/site/profile";
     }
 
 }
