@@ -2,9 +2,11 @@ package com.chinaero.kerbaltalks.contorller;
 
 import com.chinaero.kerbaltalks.annotation.LoginRequired;
 import com.chinaero.kerbaltalks.entity.User;
+import com.chinaero.kerbaltalks.service.FollowService;
 import com.chinaero.kerbaltalks.service.LikeService;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.HostHolder;
+import com.chinaero.kerbaltalks.util.KerbaltalksConstant;
 import com.chinaero.kerbaltalks.util.KerbaltalksUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +29,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements KerbaltalksConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Value("${kerbaltalks.path.domain}")
@@ -39,11 +41,13 @@ public class UserController {
     private final HostHolder hostHolder;
     private final UserService userService;
     private final LikeService likeService;
+    private final FollowService followService;
 
-    public UserController(HostHolder hostHolder, UserService userService, LikeService likeService) {
+    public UserController(HostHolder hostHolder, UserService userService, LikeService likeService, FollowService followService) {
         this.hostHolder = hostHolder;
         this.userService = userService;
         this.likeService = likeService;
+        this.followService = followService;
     }
 
     @LoginRequired
@@ -132,6 +136,20 @@ public class UserController {
 
         model.addAttribute("user", user);
         model.addAttribute("likeCount", likeService.findUserLikeCount(userId));
+
+
+        // 关注数量
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+        model.addAttribute("followeeCount", followeeCount);
+        // 粉丝数量
+        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount", followerCount);
+        // 是否已关注
+        boolean hasFollowed = false;
+        if (hostHolder.getUser() != null) {
+            hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
+        }
+        model.addAttribute("hasFollowed", hasFollowed);
 
         return "/site/profile";
     }
