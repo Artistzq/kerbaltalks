@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <contextName>kerbaltalks</contextName>
-    <property name="LOG_PATH" value="C:/Dev/Logs"/>
+    <property name="LOG_PATH" value="~/DevLogs/Kerbaltalks"/>
     <property name="APPDIR" value="kerbaltalks"/>
 
     <!-- error file -->

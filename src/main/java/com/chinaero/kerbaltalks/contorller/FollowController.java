@@ -86,7 +86,7 @@ public class FollowController implements KerbaltalksConstant {
         }
         model.addAttribute("users", userList);
 
-        return "/site/followee";
+        return "site/followee";
     }
 
 
@@ -111,7 +111,7 @@ public class FollowController implements KerbaltalksConstant {
         }
         model.addAttribute("users", userList);
 
-        return "/site/follower";
+        return "site/follower";
     }
 
     private boolean hasFollowed(int userId) {

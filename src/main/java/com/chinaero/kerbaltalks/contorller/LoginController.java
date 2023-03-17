@@ -52,12 +52,12 @@ public class LoginController implements KerbaltalksConstant {
 
     @RequestMapping(path = "/register", method = RequestMethod.GET)
     public String getRegisterPage() {
-        return "/site/register";
+        return "site/register";
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.GET)
     public String getLoginPage() {
-        return "/site/login";
+        return "site/login";
     }
 
     @RequestMapping(path = "/register", method = RequestMethod.POST)
@@ -66,12 +66,12 @@ public class LoginController implements KerbaltalksConstant {
         if (map == null || map.isEmpty()) {
             model.addAttribute("msg", "注册成功！我们已经向您的邮箱发送了一封激活邮件，请激活后使用账号。");
             model.addAttribute("target", "/index");
-            return "/site/operate-result";
+            return "site/operate-result";
         } else {
             model.addAttribute("usernameMsg", map.get("usernameMsg"));
             model.addAttribute("passwordMsg", map.get("passwordMsg"));
             model.addAttribute("mailMsg", map.get("mailMsg"));
-            return "/site/register";
+            return "site/register";
         }
     }
 
@@ -88,7 +88,7 @@ public class LoginController implements KerbaltalksConstant {
             model.addAttribute("msg", "激活失败！错误的激活码。");
             model.addAttribute("target", "/index");
         }
-        return "/site/operate-result";
+        return "site/operate-result";
     }
 
     @RequestMapping(path = "/kaptcha", method = RequestMethod.GET)
@@ -128,7 +128,7 @@ public class LoginController implements KerbaltalksConstant {
 
         if (StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {
             model.addAttribute("codeMsg", "验证码不正确");
-            return "/site/login";
+            return "site/login";
         }
 
         // 检查账号密码
@@ -139,11 +139,11 @@ public class LoginController implements KerbaltalksConstant {
             cookie.setPath(contextPath);
             cookie.setMaxAge(expiredSeconds);
             response.addCookie(cookie);
-            return "redirect:/index";
+            return "redirect:index";
         } else {
             model.addAttribute("usernameMsg", map.get("usernameMsg"));
             model.addAttribute("passwordMsg", map.get("passwordMsg"));
-            return "/site/login";
+            return "site/login";
         }
     }
 
@@ -153,7 +153,7 @@ public class LoginController implements KerbaltalksConstant {
         model.addAttribute("msg", " 已登出账号，将回到首页。");
         model.addAttribute("target", "/index");
         model.addAttribute("loginUser", null);
-        return "/site/operate-result";
+        return "site/operate-result";
     }
 
     @RequestMapping(path = "/kaptcha_deprecated", method = RequestMethod.GET)

@@ -53,7 +53,7 @@ public class UserController implements KerbaltalksConstant {
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
-        return "/site/setting";
+        return "site/setting";
     }
 
     @LoginRequired
@@ -61,7 +61,7 @@ public class UserController implements KerbaltalksConstant {
     public String uploadPath(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
             model.addAttribute("error", "还未选择图片");
-            return "/site/setting";
+            return "site/setting";
         }
 
         String filename = headerImage.getOriginalFilename();
@@ -69,7 +69,7 @@ public class UserController implements KerbaltalksConstant {
         String suffix = filename.substring(filename.lastIndexOf("."));
         if (StringUtils.isBlank(suffix)) {
             model.addAttribute("error", "文件格式不正确");
-            return "/site/setting";
+            return "site/setting";
         }
 
         // 生成随机文件名
@@ -87,7 +87,7 @@ public class UserController implements KerbaltalksConstant {
         String headerUrl = domain + contextPath + "/user/header/" + filename;
         userService.updateHeader(user.getId(), headerUrl);
 
-        return "redirect:/index";
+        return "redirect:index";
     }
 
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
@@ -123,7 +123,7 @@ public class UserController implements KerbaltalksConstant {
             model.addAttribute("oldPasswordMsg", map.get("oldPasswordMsg"));
             model.addAttribute("newPasswordMsg", map.get("newPasswordMsg"));
             model.addAttribute("confirmPasswordMsg", map.get("confirmPasswordMsg"));
-            return "/site/setting";
+            return "site/setting";
         }
     }
 
@@ -151,7 +151,7 @@ public class UserController implements KerbaltalksConstant {
         }
         model.addAttribute("hasFollowed", hasFollowed);
 
-        return "/site/profile";
+        return "site/profile";
     }
 
 }

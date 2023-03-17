@@ -139,7 +139,7 @@ public class DiscussPostController implements KerbaltalksConstant {
         }
         model.addAttribute("comments", commentVos);
 
-        return "/site/discuss-detail";
+        return "site/discuss-detail";
     }
 
 }
