@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.chinaero.kerbaltalks.dao.CountMapper">
+    <update id="incCount">
+        update kerbaltalks.record_counts set counts = counts + 1 where table_name = #{tableName};
+    </update>
+
+    <update id="setCount">
+        update kerbaltalks.record_counts set counts = #{count} where table_name = #{tableName};
+    </update>
+
+</mapper>

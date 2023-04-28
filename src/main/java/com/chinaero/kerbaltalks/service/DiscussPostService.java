@@ -1,6 +1,7 @@
 package com.chinaero.kerbaltalks.service;
 
 import com.chinaero.kerbaltalks.contorller.DiscussPostController;
+import com.chinaero.kerbaltalks.dao.CountMapper;
 import com.chinaero.kerbaltalks.dao.DiscussPostMapper;
 import com.chinaero.kerbaltalks.entity.DiscussPost;
 import com.chinaero.kerbaltalks.util.SensitiveFilter;
@@ -10,14 +11,18 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class DiscussPostService {
@@ -26,11 +31,17 @@ public class DiscussPostService {
 
     private final DiscussPostMapper discussPostMapper;
 
+    private final CountMapper countMapper;
+
     private final SensitiveFilter sensitiveFilter;
 
-    public DiscussPostService(DiscussPostMapper discussPostMapper, SensitiveFilter sensitiveFilter) {
+    private final TransactionTemplate transactionTemplate;
+
+    public DiscussPostService(DiscussPostMapper discussPostMapper, CountMapper countMapper, SensitiveFilter sensitiveFilter, PlatformTransactionManager platformTransactionManager) {
         this.discussPostMapper = discussPostMapper;
+        this.countMapper = countMapper;
         this.sensitiveFilter = sensitiveFilter;
+        this.transactionTemplate = new TransactionTemplate(platformTransactionManager);
     }
 
     @Value("${caffeine.posts.max-size}")
@@ -90,6 +101,7 @@ public class DiscussPostService {
     }
 
     public List<DiscussPost> findDiscussPosts(int userId, int offset, int limit) {
+//        return postListCache.get(offset + ":" + limit);
         if (userId == 0) {
             return postListCache.get(offset + ":" + limit);
         }
@@ -99,6 +111,7 @@ public class DiscussPostService {
     }
 
     public int findDiscussPostRows(int userId) {
+//        return postRowsCache.get(userId);
         if (userId == 0) {
             return postRowsCache.get(userId);
         }
@@ -117,7 +130,24 @@ public class DiscussPostService {
         post.setTitle(sensitiveFilter.filter(post.getTitle()));
         post.setContent(sensitiveFilter.filter(post.getContent()));
 
-        return discussPostMapper.insertDiscussPost(post);
+        AtomicInteger result = new AtomicInteger();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                try {
+                    result.set(discussPostMapper.insertDiscussPost(post));
+                    countMapper.incCount("discuss_post");
+                } catch (Exception e) {
+                    logger.error("commit error");
+                    status.setRollbackOnly();
+                }
+            }
+        });
+
+        postListCache.invalidateAll();
+        postRowsCache.invalidateAll();
+
+        return result.get();
     }
 
     public DiscussPost findDiscussPostById(int id) {
