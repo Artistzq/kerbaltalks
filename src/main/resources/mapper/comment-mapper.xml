@@ -35,4 +35,10 @@
         values (#{userId}, #{entityType}, #{entityId}, #{targetId}, #{content}, #{status}, #{createTime})
     </insert>
 
+    <select id="selectCommentById" resultType="int">
+        select <include refid="selectFields"/>
+        from comment
+        where id = #{id}
+    </select>
+
 </mapper>
