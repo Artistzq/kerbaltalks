@@ -14,8 +14,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-//@Component
-//@Aspect
+@Component
+@Aspect
 public class ServiceLogAspect {
 
     private final static Logger logger = LoggerFactory.getLogger(ServiceLogAspect.class);
@@ -28,7 +28,11 @@ public class ServiceLogAspect {
     @Before("pointcut()")
     public void before(JoinPoint joinPoint) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        assert attributes != null;
+        if (attributes == null) {
+            // 内部调用，没有IP，暂时不记录
+            return ;
+        }
+        // 只拦截Controller中的Service
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());

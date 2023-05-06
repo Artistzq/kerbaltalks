@@ -1,5 +1,6 @@
 package com.chinaero.kerbaltalks.contorller;
 
+import com.chinaero.kerbaltalks.annotation.AccessFrequencyLimit;
 import com.chinaero.kerbaltalks.entity.DiscussPost;
 import com.chinaero.kerbaltalks.entity.Page;
 import com.chinaero.kerbaltalks.entity.User;
@@ -31,6 +32,7 @@ public class HomeController {
     private LikeService likeService;
 
     @RequestMapping(path = "/index", method = RequestMethod.GET)
+    @AccessFrequencyLimit
     public String getIndexPage(Model model, Page page) {
         // Page自动注入model，thymeleaf直接用Page
         page.setRows(discussPostService.findDiscussPostRows(0));
@@ -56,6 +58,6 @@ public class HomeController {
 
     @RequestMapping(path = "/error", method = RequestMethod.GET)
     public String getErrorPage() {
-        return "/error/500";
+        return "error/500";
     }
 }

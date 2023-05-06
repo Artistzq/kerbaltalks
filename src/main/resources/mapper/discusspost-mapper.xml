@@ -6,32 +6,60 @@
 <mapper namespace="com.chinaero.kerbaltalks.dao.DiscussPostMapper">
 
     <sql id="selectFields">
-        id, user_id, title, content, type, status, create_time, comment_count, score
+        discuss_post.id, user_id, title, content, type, status, create_time, comment_count, score
     </sql>
 
     <sql id="insertFields">
         user_id, title, content, type, status, create_time, comment_count, score
     </sql>
 
+<!--    <select id="selectDiscussPosts" resultType="DiscussPost">-->
+<!--        select <include refid="selectFields"/>-->
+<!--        from discuss_post-->
+<!--        where status != 2-->
+<!--        <if test="userId != 0">-->
+<!--            and user_id = #{userId}-->
+<!--        </if>-->
+<!--        order by type desc, create_time desc-->
+<!--        limit #{offset}, #{limit}-->
+<!--    </select>-->
+
     <select id="selectDiscussPosts" resultType="DiscussPost">
-        select <include refid="selectFields"/>
-        from discuss_post
-        where status != 2
+        select <include refid="selectFields"/> from discuss_post inner join
+        (select discuss_post.id from discuss_post
         <if test="userId != 0">
-            and user_id = #{userId}
+            where user_id = #{userId}
+            # and status != 2 测试用，删除
         </if>
         order by type desc, create_time desc
         limit #{offset}, #{limit}
+        ) as id_tab
+        where id_tab.id = discuss_post.id
     </select>
 
-    <select id="selectDiscussPostRows" resultType="int">
-        select count(id)
-        from discuss_post
-        where status != 2
-        <if test="userId != 0">
-            and user_id = #{userId}
-        </if>
-    </select>
+<!--    <select id="selectDiscussPostRows" resultType="int">-->
+<!--        select count(id)-->
+<!--        from discuss_post-->
+<!--        where status != 2-->
+<!--        <if test="userId != 0">-->
+<!--            and user_id = #{userId}-->
+<!--        </if>-->
+<!--    </select>-->
+
+        <select id="selectDiscussPostRows" resultType="int">
+            <if test="userId == 0">
+            select counts
+            from record_counts
+            where table_name = "discuss_post"
+            </if>
+
+            <if test="userId != 0">
+            select count(id)
+            from discuss_post
+            # 测试用，删除 where status != 2
+                and user_id = #{userId}
+            </if>
+        </select>
 
     <insert id="insertDiscussPost" parameterType="DiscussPost">
         insert into discuss_post(<include refid="insertFields"/>)

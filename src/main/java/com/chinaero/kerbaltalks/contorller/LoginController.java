@@ -180,7 +180,7 @@ public class LoginController implements KerbaltalksConstant {
         String kaptcha = (String) session.getAttribute("kaptcha");
         if (StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {
             model.addAttribute("codeMsg", "验证码不正确");
-            return "/site/login";
+            return "site/login";
         }
 
         // 检查账号密码
@@ -195,7 +195,7 @@ public class LoginController implements KerbaltalksConstant {
         } else {
             model.addAttribute("usernameMsg", map.get("usernameMsg"));
             model.addAttribute("passwordMsg", map.get("passwordMsg"));
-            return "/site/login";
+            return "site/login";
         }
     }
 
@@ -205,6 +205,6 @@ public class LoginController implements KerbaltalksConstant {
         model.addAttribute("msg", " 已登出账号，将回到首页。");
         model.addAttribute("target", "/index");
         model.addAttribute("loginUser", null);
-        return "/site/operate-result";
+        return "site/operate-result";
     }
 }

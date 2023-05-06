@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="icon" href="https://static.nowcoder.com/images/logo_87_87.png"/>
-	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" crossorigin="anonymous">
 	<link rel="stylesheet" th:href="@{/css/global.css}" />
 	<link rel="stylesheet" th:href="@{/css/discuss-detail.css}" />
 	<title>牛客网-帖子详情</title>
@@ -84,7 +84,7 @@
 							发布于 <b th:text="${#dates.format(post.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
 							<ul class="d-inline float-right">
 								<li class="d-inline ml-2">
-									<a href="javascript:;" th:onclick="|like(this,1,${post.id}, ${post.userId});|" class="text-primary">
+									<a href="javascript:;" th:onclick="|like(this,1,${post.id}, ${post.userId}, ${post.id});|" class="text-primary">
 										<b th:text="${likeStatus==1?'已赞':'赞'}">赞</b> <i th:text="${likeCount}">11</i>
 									</a>
 								</li>
@@ -95,7 +95,7 @@
 					</div>
 				</div>	
 				<!-- 正文 -->
-				<div class="mt-4 mb-3 content" th:utext="${post.content}">
+				<div class="mt-4 mb-3 content" th:utext="${post.content}" style="white-space: pre-wrap;">
 					金三银四的金三已经到了，你还沉浸在过年的喜悦中吗？
 					如果是，那我要让你清醒一下了：目前大部分公司已经开启了内推，正式网申也将在3月份陆续开始，金三银四，春招的求职黄金时期已经来啦！！！
 					再不准备，作为19应届生的你可能就找不到工作了。。。作为20届实习生的你可能就找不到实习了。。。
@@ -119,7 +119,7 @@
 				<ul class="list-unstyled mt-4">
 					<!-- 第1条回帖 -->
 					<li class="media pb-3 pt-3 mb-3 border-bottom" th:each="cvo:${comments}">
-						<a href="profile.html">
+						<a th:href="@{|/user/profile/${cvo.user.id}|}">
 							<img th:src="${cvo.user.headerUrl}" class="align-self-start mr-4 rounded-circle user-header" alt="用户头像" >
 						</a>
 						<div class="media-body">
@@ -136,7 +136,7 @@
 								<span>发布于 <b th:text="${#dates.format(cvo.comment.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b></span>
 								<ul class="d-inline float-right">
 									<li class="d-inline ml-2">
-										<a href="javascript:;" th:onclick="|like(this, 2, ${cvo.comment.id},${cvo.comment.userId});|" class="text-primary">
+										<a href="javascript:;" th:onclick="|like(this, 2, ${cvo.comment.id},${cvo.comment.userId}, ${post.id});|" class="text-primary">
 											<b th:text="${cvo.likeStatus==1?'已赞':'赞'}">赞</b>(<i th:text="${cvo.likeCount}">1</i>)
 										</a>
 									</li>
@@ -164,7 +164,7 @@
 										<span th:text="${#dates.format(rvo.reply.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</span>
 										<ul class="d-inline float-right">
 											<li class="d-inline ml-2">
-												<a href="javascript:;" th:onclick="|like(this, 2, ${rvo.reply.id}, ${rvo.reply.userId});|" class="text-primary">
+												<a href="javascript:;" th:onclick="|like(this, 2, ${rvo.reply.id}, ${rvo.reply.userId}, ${post.id});|" class="text-primary">
 													<b th:text="${rvo.likeCount==1?'已赞':'赞'}">赞</b>(<i th:text="${rvo.likeCount}">1</i>)
 												</a>
 											</li>
@@ -235,7 +235,7 @@
 		</div>
 
 		<!-- 尾部 -->
-		<footer class="bg-dark">
+		<footer class="bg-dark" th:replace="index::tail">
 			<div class="container">
 				<div class="row">
 					<!-- 二维码 -->
@@ -298,7 +298,7 @@
 	</div>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
-	<script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.js" crossorigin="anonymous"></script>
+	<script th:src="@{/js/bootstrap.min.js}" crossorigin="anonymous"></script>
 	<script th:src="@{/js/global.js}"></script>
 	<script th:src="@{/js/discuss.js}"></script>
 </body>

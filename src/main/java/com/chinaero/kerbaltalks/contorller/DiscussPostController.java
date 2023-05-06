@@ -1,5 +1,6 @@
 package com.chinaero.kerbaltalks.contorller;
 
+import com.chinaero.kerbaltalks.annotation.AntiCSRF;
 import com.chinaero.kerbaltalks.annotation.LoginRequired;
 import com.chinaero.kerbaltalks.entity.Comment;
 import com.chinaero.kerbaltalks.entity.DiscussPost;
@@ -42,6 +43,7 @@ public class DiscussPostController implements KerbaltalksConstant {
     private LikeService likeService;
 
     @LoginRequired
+    @AntiCSRF
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {

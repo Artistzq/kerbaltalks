@@ -126,7 +126,7 @@ public class UserService implements KerbaltalksConstant {
         context.setVariable("email", user.getEmail());
         String url = domain + contextPath + "/activation/" + user.getId() + "/" + user.getActivationCode();
         context.setVariable("url", url);
-        String content = templateEngine.process("/mail/activation", context);
+        String content = templateEngine.process("mail/activation", context);
         mailClient.sendMail(user.getEmail(), "KerbalTalks 账号激活", content);
 
         // 空map，没有问题

@@ -1,13 +1,14 @@
 package com.chinaero.kerbaltalks.contorller;
 
+import com.chinaero.kerbaltalks.entity.Event;
 import com.chinaero.kerbaltalks.entity.Page;
 import com.chinaero.kerbaltalks.entity.User;
+import com.chinaero.kerbaltalks.event.EventProducer;
 import com.chinaero.kerbaltalks.service.FollowService;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.HostHolder;
 import com.chinaero.kerbaltalks.util.KerbaltalksConstant;
 import com.chinaero.kerbaltalks.util.KerbaltalksUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,12 +37,14 @@ public class FollowController implements KerbaltalksConstant {
     private final FollowService followService;
     private final HostHolder hostHolder;
     private final UserService userService;
+    private final EventProducer eventProducer;
 
 
-    public FollowController(FollowService followService, HostHolder hostHolder, UserService userService) {
+    public FollowController(FollowService followService, HostHolder hostHolder, UserService userService, EventProducer eventProducer) {
         this.followService = followService;
         this.hostHolder = hostHolder;
         this.userService = userService;
+        this.eventProducer = eventProducer;
     }
 
     @RequestMapping(path = "/follow", method = RequestMethod.POST)
@@ -49,6 +53,17 @@ public class FollowController implements KerbaltalksConstant {
         User user = hostHolder.getUser();
 
         followService.follow(user.getId(), entityType, entityId);
+
+        // 触发关注事件
+        Event event = Event.builder()
+                .topic(KerbaltalksConstant.TOPIC_FOLLOW)
+                .userId(hostHolder.getUser().getId())
+                .entityType(entityType)
+                .entityId(entityId)
+                .entityUserId(entityId)
+                .data(new HashMap<>())
+                .build();
+        eventProducer.fireEvent(event);
 
         return KerbaltalksUtil.getJSONString(1, "已关注!");
     }

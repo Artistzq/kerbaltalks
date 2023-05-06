@@ -72,6 +72,7 @@ public class FollowService implements KerbaltalksConstant {
         return redisTemplate.opsForZSet().zCard(followeeKey);
     }
 
+
     /**
      * 查询实体的粉丝的数量
      * @param entityType

@@ -14,9 +14,9 @@
 
     <select id="selectConversations" resultType="Message">
         select <include refid="selectFields"/>
-        from message
+        from kerbaltalks.message
         where id in (
-            select max(id) from message
+            select max(id) from kerbaltalks.message
             where status != 2
             and from_id != 1
             and (from_id = #{userId} or to_id = #{userId})
@@ -79,6 +79,46 @@
             #{aId}
         </foreach>
     </update>
+
+    <select id="selectLatestNotice" resultType="Message">
+        select <include refid="selectFields"/>
+        from kerbaltalks.message
+        where id in (
+            select max(id) from message
+            where status != 2
+            and from_id = 1 # 来自系统用户
+            and to_id = #{userId}
+            and conversation_id = #{topic}
+        )
+    </select>
+
+    <select id="selectNoticeCount" resultType="int">
+        select count(id) from kerbaltalks.message
+        where status != 2
+        and from_id = 1 # 来自系统用户
+        and to_id = #{userId}
+        and conversation_id = #{topic}
+    </select>
+
+    <select id="selectNoticeUnreadCount" resultType="int">
+        select count(id) from kerbaltalks.message
+        where status = 0
+          and from_id = 1 # 来自系统用户
+          and to_id = #{userId}
+          <if test="topic != null">
+              and conversation_id = #{topic}
+          </if>
+    </select>
+
+    <select id="selectNotice" resultType="Message">
+        select <include refid="selectFields"/> from kerbaltalks.message
+        where status != 2
+        and from_id = 1
+        and to_id = #{userId}
+        and conversation_id = #{topic}
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
 
 
 </mapper>

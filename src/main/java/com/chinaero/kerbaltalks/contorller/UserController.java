@@ -38,6 +38,9 @@ public class UserController implements KerbaltalksConstant {
     private String uploadPath;
     @Value("${server.servlet.context-path}")
     private String contextPath;
+    @Value("${server.tomcat.basedir}")
+    private String basedir;
+
     private final HostHolder hostHolder;
     private final UserService userService;
     private final LikeService likeService;
@@ -87,13 +90,15 @@ public class UserController implements KerbaltalksConstant {
         String headerUrl = domain + contextPath + "/user/header/" + filename;
         userService.updateHeader(user.getId(), headerUrl);
 
-        return "redirect:index";
+        return "redirect:/index";
     }
 
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         // 服务器存放路径
-        fileName = uploadPath + "/" + fileName;
+        String prefix = basedir + "/work/Tomcat/localhost/kerbaltalks/";
+        fileName = prefix + uploadPath + "/" + fileName;
+//        System.out.println(fileName);
 
         // 声明格式
         String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
