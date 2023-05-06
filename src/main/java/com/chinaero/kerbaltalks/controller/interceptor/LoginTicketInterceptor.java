@@ -1,4 +1,4 @@
-package com.chinaero.kerbaltalks.contorller.interceptor;
+package com.chinaero.kerbaltalks.controller.interceptor;
 
 import com.chinaero.kerbaltalks.entity.LoginTicket;
 import com.chinaero.kerbaltalks.entity.User;
@@ -7,7 +7,6 @@ import com.chinaero.kerbaltalks.util.CookieUtil;
 import com.chinaero.kerbaltalks.util.HostHolder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;

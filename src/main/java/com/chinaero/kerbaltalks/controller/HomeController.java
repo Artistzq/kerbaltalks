@@ -1,4 +1,4 @@
-package com.chinaero.kerbaltalks.contorller;
+package com.chinaero.kerbaltalks.controller;
 
 import com.chinaero.kerbaltalks.annotation.AccessFrequencyLimit;
 import com.chinaero.kerbaltalks.entity.DiscussPost;

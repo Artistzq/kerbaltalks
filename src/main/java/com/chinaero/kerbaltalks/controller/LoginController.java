@@ -1,6 +1,5 @@
-package com.chinaero.kerbaltalks.contorller;
+package com.chinaero.kerbaltalks.controller;
 
-import com.chinaero.kerbaltalks.config.KaptchaConfig;
 import com.chinaero.kerbaltalks.entity.User;
 import com.chinaero.kerbaltalks.service.UserService;
 import com.chinaero.kerbaltalks.util.KerbaltalksConstant;
@@ -13,7 +12,6 @@ import jakarta.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

@@ -1,4 +1,4 @@
-package com.chinaero.kerbaltalks.contorller;
+package com.chinaero.kerbaltalks.controller;
 
 import com.chinaero.kerbaltalks.annotation.LoginRequired;
 import com.chinaero.kerbaltalks.entity.Comment;

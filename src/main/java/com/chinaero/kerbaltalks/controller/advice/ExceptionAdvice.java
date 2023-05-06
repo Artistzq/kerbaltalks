@@ -1,4 +1,4 @@
-package com.chinaero.kerbaltalks.contorller.advice;
+package com.chinaero.kerbaltalks.controller.advice;
 
 import com.chinaero.kerbaltalks.util.KerbaltalksUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.Principal;
 
 @ControllerAdvice(annotations = Controller.class)
 public class ExceptionAdvice {

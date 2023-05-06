@@ -1,6 +1,6 @@
 package com.chinaero.kerbaltalks.service;
 
-import com.chinaero.kerbaltalks.contorller.DiscussPostController;
+import com.chinaero.kerbaltalks.controller.DiscussPostController;
 import com.chinaero.kerbaltalks.dao.CountMapper;
 import com.chinaero.kerbaltalks.dao.DiscussPostMapper;
 import com.chinaero.kerbaltalks.entity.DiscussPost;

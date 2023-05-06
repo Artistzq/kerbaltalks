@@ -1,6 +1,6 @@
 package com.chinaero.kerbaltalks.config;
 
-import com.chinaero.kerbaltalks.contorller.interceptor.*;
+import com.chinaero.kerbaltalks.controller.interceptor.*;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
